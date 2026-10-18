@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 setlocal
-set "REPO_URL=https://github.com/USER/REPO.git"
+set "REPO_URL=https://github.com/wwWWW56600/nucscc-cpp.git"
 
 if "%REPO_URL%"=="https://github.com/USER/REPO.git" (
   echo ERROR: edit REPO_URL at the top of this file to your repo URL first.
