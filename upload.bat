@@ -1,6 +1,9 @@
 @echo off
 chcp 65001 >nul
 setlocal
+REM 走 Clash Verge 代理（仅本脚本进程内生效，不改全局 git 配置）
+set "HTTP_PROXY=http://127.0.0.1:7897"
+set "HTTPS_PROXY=http://127.0.0.1:7897"
 set "REPO_URL=https://github.com/wwWWW56600/nucscc-cpp.git"
 
 if "%REPO_URL%"=="https://github.com/USER/REPO.git" (
