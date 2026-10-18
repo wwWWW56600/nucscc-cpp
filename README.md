@@ -34,7 +34,7 @@
 │   └── L5_cpp/        # 读数变化观察（可选 debug 关）
 │       ├── main.cpp
 │       └── README.md             # 缺陷定位 + 编译/运行 + 样例
-└── 技术报告_感悟报告.pdf   # 技术报告 + 感悟报告（另附，不进仓库代码）
+└── .gitignore         # 忽略规则：构建产物、内部数据、报告初稿等不进仓库
 ```
 
 > 每个 `src/Lx_cpp/` 目录下都自带 `README.md`，单独 clone 任一目录也能照着编译运行——源码与指令不分离。
@@ -108,20 +108,44 @@ diff <(./build/main < "$f") "${f%.in}.out" && echo OK  # 与官方期望输出�
 
 > ⚠️ `cat >` 等待态中**不要按方向键**（会注入 `ESC[B` 导致 `stray '\33'` 编译错误），写大文件建议逐行粘贴；断线后先 `cat 文件名` 检查完整性再重写覆盖。
 
-### B. 本机仓库与 GitHub 上传（⚠️ 待执行：下述命令在你本地真正 push 到 GitHub 时才发生）
+### B. 本机建仓与 GitHub 上传（已执行）
 
-> **重要（诚实记录原则）**：以下**不是已执行的记录**，而是「届时照做的步骤模板」。评分重点考察**真实的 git 操作**（本地/远程分支、同步过程、用了哪些指令），所以这部分**不能提前编造**。等你本地真正执行 git 上传那一步，把你终端**实际敲的**命令（含真实提交信息、真实远端地址脱敏）回填到这里，并同步写进技术报告的 git 章节。
+真实流程分三步：本地初始化并提交 → 网页端建空仓 → 关联远端并推送。以下均为实际生效的命令与提交。
 
 ```bash
-# —— 在你本地准备好仓库目录后（命令按你实际用的来）——
-git init                                          # 若尚未建仓（或 git clone <你的仓库URL>）
-# mkdir ncuscc-cpp && cd ncuscc-cpp               # 按需建目录并进入
-# vim README.md / code 编辑器                      # 用你习惯的方式写/改说明与代码
+# —— 第 1 步：本地建仓与首次提交 ——
+git init                                          # 在工作区初始化本地仓库
+git add README.md src .gitignore 上传说明.md upload.bat   # 显式暂存交付文件（不用 add .，防带入杂物）
+git commit -m "NCUSCC 招新考核：进阶 C/C++ L1-L5 通关源码 + 上传说明"
+# 首次提交 ff6c8fc，共 19 个文件
 
-git add README.md src/                            # 只加说明与源码，不加 build/ 等产物
-git commit -m "..."                               # 提交信息按你实际写的来（建议带关卡进度）
-git remote add origin <你的仓库URL>               # 关联远端（若 clone 则已存在，可跳过）
-git push -u origin main                           # 推送到 main 分支（分支名按你实际来）
+# —— 第 2 步：github.com 网页端 New repository 建空仓 ——
+# 选 Public，不勾选 Initialize with README / .gitignore / License（本地已有，避免冲突）
+
+# —— 第 3 步：关联远端并首推 ——
+git branch -M main                                # 主分支命名为 main
+git remote add origin https://github.com/wwWWW56600/nucscc-cpp.git
+git push -u origin main                           # 首推并建立分支跟踪（-u = set-upstream）
 ```
 
-> 上传前确认：仓库根目录含 `README.md` + `src/`，**不含 `build/`**；技术/感悟报告 `xxx.pdf` 单独提交或另附，不混入源码。push 完成后，把上面**实际生效**的命令回填本段与报告——未真正执行过的步骤一律不写。
+> **踩坑 1（网络）**：首推报 `Failed to connect to github.com:443`——浏览器走了代理而 git 命令没有。设置**进程级**代理后重推成功（只对当前终端窗口生效，关闭即失效，不改全局配置）：
+>
+> ```bash
+> set HTTP_PROXY=http://127.0.0.1:7897     # Windows cmd；端口为本机代理软件的混合端口
+> set HTTPS_PROXY=http://127.0.0.1:7897
+> git push                                 # 上游已由 -u 跟踪，后续 push 免参数
+> ```
+
+> **踩坑 2（git add . 全量添加）**：首次推送到远端时脚本内使用了 `git add .`，把辅助文件（打包 zip、上传脚本、上传说明）一并带入仓库。随后用 `git rm --cached` 从版本库移除（保留本地文件），并补全 `.gitignore` 防止复发：
+>
+> ```bash
+> git rm --cached NCUSCC_cpp_upload_package.zip upload.bat   # --cached：只删版本库记录，保留本地文件
+> git rm --cached 上传说明.md
+> git add .gitignore                                         # 忽略清单补上这三类
+> git commit -m "remove non-code files, keep code only"      # 修正提交 823b023
+> git push
+> ```
+>
+> 概念注记：删除文件在 git 里也是一种修改，同样要走 commit + push 才会同步到远端；`--cached` 与不带 `--cached` 的区别在于是否连工作区文件一起删。
+
+> 最终仓库内容：`src/`（L1–L5 源码 + 各关 README）+ `README.md` + `.gitignore`。技术报告与感悟报告 PDF 不混入源码仓库，单独提交。
